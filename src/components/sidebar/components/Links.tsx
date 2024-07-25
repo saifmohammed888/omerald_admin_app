@@ -2,8 +2,8 @@
 import React from 'react';
 import { useCallback } from 'react';
 import { usePathname } from 'next/navigation';
-import NavLink from 'components/link/NavLink';
-import DashIcon from 'components/icons/DashIcon';
+import NavLink from '@component/link/NavLink';
+import DashIcon from '@component/icons/DashIcon';
 // chakra imports
 
 export const SidebarLinks = (props: { routes: RoutesType[] }): JSX.Element => {
@@ -23,7 +23,7 @@ export const SidebarLinks = (props: { routes: RoutesType[] }): JSX.Element => {
   const createLinks = (routes: RoutesType[]) => {
     return routes.map((route, index) => {
       if (
-        route.layout === '/admin' ||
+        route.layout === '/dashboard' ||
         route.layout === '/auth' ||
         route.layout === '/rtl'
       ) {

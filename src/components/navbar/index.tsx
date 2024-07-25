@@ -1,7 +1,7 @@
 import React from 'react';
-import Dropdown from 'components/dropdown';
+import Dropdown from '@component/dropdown';
 import { FiAlignJustify } from 'react-icons/fi';
-import NavLink from 'components/link/NavLink';
+import NavLink from '@component/link/NavLink';
 import navbarimage from '/public/img/layout/Navbar.png';
 import { BsArrowBarUp } from 'react-icons/bs';
 import { FiSearch } from 'react-icons/fi';
@@ -22,9 +22,9 @@ const Navbar = (props: {
   [x: string]: any;
 }) => {
   const { onOpenSidenav, brandText, mini, hovered } = props;
-  const [darkmode, setDarkmode] = React.useState(
-    document.body.classList.contains('dark'),
-  );
+  // const [darkmode, setDarkmode] = React.useState(
+  //   document.body.classList.contains('dark'),
+  // );
   return (
     <nav className="sticky top-4 z-40 flex flex-row flex-wrap items-center justify-between rounded-xl bg-white/10 p-2 backdrop-blur-xl dark:bg-[#0b14374d]">
       <div className="ml-[6px]">
@@ -164,7 +164,7 @@ const Navbar = (props: {
             </a>
           </div>
         </Dropdown>
-        <div
+        {/* <div
           className="cursor-pointer text-gray-600"
           onClick={() => {
             if (darkmode) {
@@ -181,7 +181,7 @@ const Navbar = (props: {
           ) : (
             <RiMoonFill className="h-4 w-4 text-gray-600 dark:text-white" />
           )}
-        </div>
+        </div> */}
         {/* Profile & Dropdown */}
         <Dropdown
           button={
