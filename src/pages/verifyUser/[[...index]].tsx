@@ -4,9 +4,10 @@ import { useRouter } from 'next/router';
 import { useSession, useUser } from '@clerk/nextjs';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '@src/utils/recoil/user';
-import { useGetUser } from '@src/utils/reactQuery';
+import { useCreateUser, useGetUser } from '@src/utils/reactQuery';
 import PrimaryLayout from 'src/layouts/PrimaryLayout';
 import { PageWithPrimaryLayout } from 'src/types/page';
+import { errorAlert } from '@src/components/alert';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,7 +17,41 @@ const VerifyUser: PageWithPrimaryLayout = () => {
   const setUserRecoil = useSetRecoilState(userState);
   const userValue = useRecoilValue(userState);
   const router = useRouter();
-  const { data, isLoading } = useGetUser(user?.phoneNumbers[0]?.phoneNumber);
+  const { data, isLoading, isError } = useGetUser(
+    user?.phoneNumbers[0]?.phoneNumber,
+  );
+
+  const createUser = useCreateUser({
+    onSuccess: (res) => {
+      //@ts-ignore
+      if (res?.status === 200 && res?.data?._id) {
+        setUserRecoil(res.data);
+      }
+    },
+    onError: () => {
+      errorAlert('Error Creating user');
+    },
+  });
+
+  useEffect(() => {
+    if (
+      session?.status === 'active' &&
+      !isLoading &&
+      data &&
+      //@ts-ignore
+      data.status === 200 &&
+      //@ts-ignore
+      data.data === null
+    ) {
+      let userData = {
+        phoneNumber: user?.phoneNumbers[0]?.phoneNumber,
+        userName: user?.fullName,
+        role: 'user',
+      };
+
+      createUser.mutate({ data: userData });
+    }
+  }, [session, isLoading, data, createUser]);
 
   useEffect(() => {
     //@ts-ignore
@@ -30,18 +65,23 @@ const VerifyUser: PageWithPrimaryLayout = () => {
     //@ts-ignore
     if (userValue && userValue.role === 'admin') {
       router.push('/dashboard/default');
-    } else if (!user && !isLoading) {
+    } else if (!user && !isLoading && !isError) {
       router.push('/signIn');
     }
-  }, [userValue, user, isLoading, router]);
+  }, [userValue, user, isLoading, isError, router]);
 
   return (
-    <div className="min-h-screen/2 p-8">
-      <div
-        className={`flex flex-col items-center justify-between ${inter.className} w-full`}
-      >
-        <section className="my-10">Verify User</section>
-      </div>
+    <div className="min-h-screen p-8">
+      {isLoading && (
+        <div className="flex h-screen items-center justify-center">
+          <p>Loading...</p>
+        </div>
+      )}
+      {!isLoading && (
+        <div className={`flex flex-col items-center ${inter.className} w-full`}>
+          <section className="my-10">Verify User</section>
+        </div>
+      )}
     </div>
   );
 };

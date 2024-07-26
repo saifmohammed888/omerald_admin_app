@@ -4,8 +4,7 @@ import {
   deleteUserService,
   getAllUsers,
   getUserByPhone,
-  revertDeleteUserService,
-  softDeleteUserService,
+  updateUserService,
 } from '../services/userService';
 import { UserData } from '../utils/interface';
 import {
@@ -122,53 +121,26 @@ export const deleteUserController = async (
   }
 };
 
-/**
- * Controller function to delete user temporarily
- * @param req Next.js API request object (Unused in this specific function)
- * @param res Next.js API response object
- */
-export const softDeleteUserController = async (
+export const updateUserController = async (
   _req: NextApiRequest,
   res: NextApiResponse,
 ) => {
   try {
-    const { phoneNumber } = _req.query;
+    let phoneNumber = _req.query.phoneNumber as string;
 
+    if (!phoneNumber) {
+      res.status(400).json({ error: 'Phone number is required' });
+      return;
+    }
+    phoneNumber = decodeURIComponent(phoneNumber);
     if (Array.isArray(phoneNumber) || typeof phoneNumber !== 'string') {
       throw badRequestError('Invalid PhooneNumber');
     }
-
-    const users = await softDeleteUserService(phoneNumber);
+    const users = await updateUserService(phoneNumber, _req.body);
     res.status(200).json(users);
   } catch (error: any) {
     {
       console.error('Error deleting user:', error);
-      throw internalServerError();
-    }
-  }
-};
-
-/**
- * Controller function to delete user temporarily
- * @param req Next.js API request object (Unused in this specific function)
- * @param res Next.js API response object
- */
-export const revertDeletedUserController = async (
-  _req: NextApiRequest,
-  res: NextApiResponse,
-) => {
-  try {
-    const { phoneNumber } = _req.query;
-
-    if (Array.isArray(phoneNumber) || typeof phoneNumber !== 'string') {
-      throw badRequestError('Invalid PhooneNumber');
-    }
-
-    const users = await revertDeleteUserService(phoneNumber);
-    res.status(200).json(users);
-  } catch (error: any) {
-    {
-      console.error('Error reverted user:', error);
       throw internalServerError();
     }
   }

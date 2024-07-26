@@ -1,21 +1,26 @@
 // hocs/withAuthAdmin.js
-import { userState } from '@src/utils/recoil/user';
+import { useUser } from '@clerk/nextjs';
+import { useGetUser } from '@src/utils/reactQuery';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useRecoilValue } from 'recoil';
 
 const WithAuthAdmin = ({ children }) => {
-  const user = useRecoilValue(userState);
-  const router = useRouter();
-  useEffect(() => {
-    //@ts-ignore
-    if (!user || user.role !== 'admin') {
-      router.push('/verifyUser');
-    }
-  }, [user, router]);
+  // const { user } = useUser();
+  // const router = useRouter();
+  // const { data, isLoading, isError } = useGetUser(
+  //   user?.phoneNumbers[0]?.phoneNumber,
+  // );
+
+  // useEffect(() => {
+  //   //@ts-ignore
+  //   if (!user || user.role !== 'admin') {
+  //     router.push('/verifyUser');
+  //   }
+  // }, [user, router]);
 
   //@ts-ignore
-  return user && user.role === 'admin' ? children : null;
+  return children;
+  // return user && user.role === 'admin' ? children : null;
 };
 
 export default WithAuthAdmin;
