@@ -1,10 +1,4 @@
 'use client';
-import MiniCalendar from '@component/calendar/MiniCalendar';
-import WeeklyRevenue from '@src/components/admin/backup/default/WeeklyRevenue';
-import TotalSpent from '@src/components/admin/backup/default/TotalSpent';
-import PieChartCard from '@src/components/admin/backup/default/PieChartCard';
-import { IoMdHome } from 'react-icons/io';
-import { IoDocuments } from 'react-icons/io5';
 import {
   MdBarChart,
   MdBoy,
@@ -16,12 +10,6 @@ import {
 } from 'react-icons/md';
 
 import Widget from '@component/widget/Widget';
-import CheckTable from '@src/components/admin/backup/default/CheckTable';
-import ComplexTable from '@src/components/admin/backup/default/ComplexTable';
-import DailyTraffic from '@src/components/admin/backup/default/DailyTraffic';
-import TaskCard from '@src/components/admin/backup/default/TaskCard';
-import tableDataCheck from '@variables/data-tables/tableDataCheck';
-import tableDataComplex from '@variables/data-tables/tableDataComplex';
 import Admin from '../../../pages/dashboard/[[...index]]';
 import {
   DASHBOARD_RESP,
@@ -32,94 +20,105 @@ import AdminDataChart from '@src/components/admin/adminUsers/dashboard/AdminData
 import AdminPieChartCard from '@src/components/admin/adminUsers/dashboard/AdminPieChart';
 import UserGrowthChart from '@src/components/admin/adminUsers/dashboard/UserGrowthChart';
 import AdminItemsChart from '@src/components/admin/adminUsers/dashboard/AdminItems';
+import { useGetDashboard } from '@src/utils/reactQuery';
+import { useRecoilValue } from 'recoil';
+import { userState } from '@src/utils/recoil/user';
+import { DashboardResponse, UserData } from '@src/api/utils/interface';
+import { useEffect, useState } from 'react';
+import { Button } from '@chakra-ui/react';
 
 const Dashboard = () => {
-  const { cardData, activities }: DASHBOARD_RESP = dashboardData;
+  const user: UserData = useRecoilValue(userState);
+  const [cardData, setCardData] = useState({});
+  const [activities, setActivities] = useState([]);
+  const [userCount, setUserCount] = useState({});
+  const [adminAssets, setAdminAssets] = useState({});
+  const {
+    data: adminDashboard,
+    isLoading,
+    refetch,
+  }: any = useGetDashboard(user.phoneNumber);
+
+  useEffect(() => {
+    refetch();
+  }, []);
+
+  const handleMapData = (data: DashboardResponse) => {
+    setCardData(data.cardData);
+    setActivities(data.activities);
+    setUserCount(data.donutChart.users);
+    setAdminAssets(data.donutChart.adminData);
+  };
+
+  useEffect(() => {
+    if (!isLoading && adminDashboard && adminDashboard.data) {
+      handleMapData(adminDashboard.data);
+    }
+  }, [adminDashboard, isLoading, refetch]);
 
   return (
     <Admin>
-      <div>
-        {/* Card widget */}
-
-        <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-5">
-          <Widget
-            icon={<MdLocalHospital className="sm:h-7 sm:w-12" />}
-            title={'Diagnostic Centers'}
-            //@ts-ignore
-            subtitle={cardData?.dcUsers}
-          />
-          <Widget
-            icon={<MdBoy className="sm:h-7 sm:w-12" />}
-            title={'Omerald Users'}
-            //@ts-ignore
-            subtitle={cardData?.userCount}
-          />
-          <Widget
-            icon={<MdHealing className="sm:h-7 sm:w-12" />}
-            title={'Diagnosed Conditions'}
-            //@ts-ignore
-            subtitle={cardData?.diagnosedConditionCount}
-          />
-          <Widget
-            icon={<MdVaccines className="sm:h-7 sm:w-12" />}
-            title={'Vaccines'}
-            //@ts-ignore
-            subtitle={cardData?.vaccineCount}
-          />
-          <Widget
-            icon={<MdEditDocument className="sm:h-7 sm:w-12" />}
-            title={'Reports'}
-            //@ts-ignore
-            subtitle={cardData?.reportCount}
-          />
-          {/* <Widget
-            icon={<MdBarChart className="h-7 w-7" />}
-            title={'New Tasks'}
-            subtitle={'145'}
-          />
-          <Widget
-            icon={<IoMdHome className="h-6 w-6" />}
-            title={'Total Projects'}
-            subtitle={'$2433'}
-          /> */}
-        </div>
-
-        {/* Charts */}
-
-        <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-          <UserGrowthChart />
-          <AdminItemsChart />
-        </div>
-
-        {/* Tables & Charts */}
-
-        <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2">
-          {/* Check Table */}
-          {/* <div>
-            <CheckTable tableData={tableDataCheck} />
-          </div> */}
-
-          {/* Complex Table , Task & Calendar */}
-
-          <ActivityTable tableData={activities} />
-
-          {/* Traffic chart & Pie Chart */}
-
-          <div className="grid grid-cols-1 gap-5 rounded-[20px] md:grid-cols-2">
-            <AdminDataChart />
-            <AdminPieChartCard />
+      <>
+        <div>
+          <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-5">
+            <Widget
+              icon={<MdLocalHospital className="sm:h-7 sm:w-12" />}
+              title={'Diagnostic Centers'}
+              //@ts-ignore
+              subtitle={cardData?.dcUsers || 0}
+            />
+            <Widget
+              icon={<MdBoy className="sm:h-7 sm:w-12" />}
+              title={'Omerald Users'}
+              //@ts-ignore
+              subtitle={cardData?.userCount || 0}
+            />
+            <Widget
+              icon={<MdHealing className="sm:h-7 sm:w-12" />}
+              title={'Diagnosed Conditions'}
+              //@ts-ignore
+              subtitle={cardData?.diagnosedConditionCount || 0}
+            />
+            <Widget
+              icon={<MdVaccines className="sm:h-7 sm:w-12" />}
+              title={'Vaccines'}
+              //@ts-ignore
+              subtitle={cardData?.vaccineCount || 0}
+            />
+            <Widget
+              icon={<MdEditDocument className="sm:h-7 sm:w-12" />}
+              title={'Reports'}
+              //@ts-ignore
+              subtitle={cardData?.reportCount || 0}
+            />
           </div>
 
-          {/* Task chart & Calendar */}
+          <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+            <UserGrowthChart />
+            <AdminItemsChart adminAssets={adminAssets} />
+          </div>
 
-          {/* <div className="grid grid-cols-1 gap-5 rounded-[20px] md:grid-cols-2">
-            <TaskCard />
-            <div className="grid grid-cols-1 rounded-[20px]">
-              <MiniCalendar />
+          <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2">
+            {activities && <ActivityTable tableData={activities} />}
+            <div className="grid grid-cols-1 gap-5 rounded-[20px] md:grid-cols-2">
+              {userCount && <AdminDataChart userCount={userCount} />}
+              {userCount && <AdminPieChartCard userCount={userCount} />}
             </div>
-          </div> */}
+          </div>
         </div>
-      </div>
+        {isLoading && (
+          <div className="fixed left-0 top-0 flex h-full w-full items-center justify-center bg-gray-500 bg-opacity-50">
+            <Button
+              isLoading
+              loadingText="Fetching Data"
+              variant="outline"
+              size="xxl"
+            >
+              Button
+            </Button>
+          </div>
+        )}
+      </>
     </Admin>
   );
 };

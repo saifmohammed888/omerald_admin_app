@@ -1,7 +1,7 @@
 'use client';
 // Layout @component
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getActiveNavbar, getActiveRoute } from '@utils/navigation';
 import React from 'react';
 import Navbar from '@component/navbar';
@@ -10,13 +10,45 @@ import Footer from '@component/footer/Footer';
 import routes from '@src/routes';
 import Head from 'next/head';
 import { PRODUCT_DESCRIPTION, PRODUCT_NAME } from '@src/constants/meta';
+import { useRecoilValue } from 'recoil';
+import { userState } from '@src/utils/recoil/user';
+import { ALLOWED_USERS } from '@src/constants/appConstants';
+import { UserData } from '@src/api/utils/interface';
+import { useRouter } from 'next/router';
+import { errorAlert2 } from '@src/components/alert';
+import { Button } from '@chakra-ui/react';
 
-export default function Admin({ children }: { children: React.ReactNode }) {
-  // states and functions
+function Admin({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const user: UserData = useRecoilValue(userState);
+  const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (user && user.role && !ALLOWED_USERS.includes(user.role)) {
+      errorAlert2('You dont have relevant access');
+      router.push('/');
+    } else if (user && ALLOWED_USERS.includes(user.role)) {
+      setIsLoading(false);
+    }
+  }, [user, router]);
+
   return (
     <div className="flex h-full w-full bg-background-100 dark:bg-background-900">
+      {isLoading && (
+        <div className="fixed left-0 top-0 flex h-full w-full items-center justify-center bg-gray-500 bg-opacity-50">
+          <Button
+            isLoading
+            loadingText="Fetching user"
+            variant="outline"
+            size="xxl"
+          >
+            Button
+          </Button>
+        </div>
+      )}
+
       {/* page meta data */}
       <Head>
         <title>{PRODUCT_NAME}</title>
@@ -51,3 +83,5 @@ export default function Admin({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+export default Admin;

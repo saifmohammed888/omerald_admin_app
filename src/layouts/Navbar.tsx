@@ -64,10 +64,7 @@ const Navbar: React.FC = () => {
                 <Disclosure.Panel className="my-5 flex w-full flex-wrap lg:hidden">
                   <section className="flex">
                     {userValue && (
-                      <Link
-                        href="/dashboard/default"
-                        className="rounded-md bg-indigo-600 px-6 py-2 text-white md:ml-5"
-                      >
+                      <Link href="/verifyUser" className=" py-2 text-gray-500">
                         Dashboard
                       </Link>
                     )}
@@ -118,7 +115,7 @@ const Navbar: React.FC = () => {
               <UserButton />
               {userValue && (
                 <Link
-                  href="/dashboard/default"
+                  href="/verifyUser"
                   className="rounded-md bg-indigo-600 px-6 py-2 text-white md:ml-5"
                 >
                   Dashboard
