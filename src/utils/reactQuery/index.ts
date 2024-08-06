@@ -1,10 +1,20 @@
 import {
+  createDiagnosedConditionsApi,
   createUserApi,
+  deleteDiagnosedConditionsApi,
   getAdminDashbord,
+  getAdminUsersApi,
+  getDiagnosedConditionsApi,
   getUserByPhoneApi,
+  updateDiagnosedConditionsApi,
 } from '@src/constants/api';
 import axios, { AxiosResponse } from 'axios';
-import { useMutation, useQuery, UseQueryOptions } from 'react-query';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from 'react-query';
 
 // useQuery hook to get data
 export function useQueryGetData<T>(
@@ -42,6 +52,11 @@ function CreateMutation<TData, TVariables>(
   );
 }
 
+export function useAdminUsers() {
+  return useQueryGetData('adminUserData', getAdminUsersApi);
+}
+
+// GET
 export function useGetUser(userPhoneNumber: string) {
   const encodedPhoneNumber = encodeURIComponent(userPhoneNumber);
   return useQueryGetData('userData', getUserByPhoneApi + encodedPhoneNumber, {
@@ -49,36 +64,78 @@ export function useGetUser(userPhoneNumber: string) {
   });
 }
 
-export function useGetDashboard(userPhoneNumber: string) {
-  return useQueryGetData('adminDashboard', getAdminDashbord, {
-    enabled: !!userPhoneNumber,
-  });
+export function useGetDashboard() {
+  return useQueryGetData('adminDashboard', getAdminDashbord);
 }
 
-// Functions for different mutations
-// export function useGetUser({ userPhoneNumber }: any) {
-//   return useQueryGetData('userData', getDiagnosticUserApi + userPhoneNumber, {
-//     enabled: !!userPhoneNumber,
-//   });
-// }
+export function useGetDiagnosedConditions() {
+  return useQueryGetData('diagnosedConditions', getDiagnosedConditionsApi);
+}
 
-// export function useGetDcProfile({ selectedCenterId }: any) {
-//   return useQueryGetData(
-//     'diagnosticCenter',
-//     getDiagProfileByPhoneApi + selectedCenterId,
-//     { enabled: !!selectedCenterId },
-//   );
-// }
-
+// Post calls
 export function useCreateUser<TData, TVariables>(
   props: UseMutationProps<TData, TVariables>,
 ) {
   return CreateMutation('post', createUserApi, props);
 }
 
-// export function useUpdateUser<TData, TVariables>(
-//   props: UseMutationProps<TData, TVariables>,
-//   userId: String,
-// ) {
-//   return createMutation('put', updateDiagnosticUserApi + userId, props);
-// }
+export function useCreateDC<TData, TVariables>(
+  props: UseMutationProps<TData, TVariables>,
+) {
+  return CreateMutation('post', createDiagnosedConditionsApi, props);
+}
+
+// Update call
+
+// Delete
+function UpdateMutation<TData, TVariables>(
+  method: 'put',
+  url: string,
+  { onSuccess, onError }: UseMutationProps<TData, TVariables>,
+) {
+  return useMutation(
+    (data: any) =>
+      axios[method](url + data?.recordId, data?.data, {
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    {
+      onSuccess,
+      onError,
+    },
+  );
+}
+
+export function useUpdateDC<TData, TVariables>(
+  props: UseMutationProps<TData, TVariables>,
+) {
+  return UpdateMutation('put', updateDiagnosedConditionsApi, props);
+}
+
+// Delete
+function DeleteMutation<TData, TVariables>(
+  method: 'delete',
+  url: string,
+  { onSuccess, onError }: UseMutationProps<TData, TVariables>,
+) {
+  return useMutation((recordId: string) => axios[method](url + recordId), {
+    onSuccess,
+    onError,
+  });
+}
+
+export function useDeleteDC<TData, TVariables>(
+  props: UseMutationProps<TData, TVariables>,
+) {
+  return DeleteMutation('delete', deleteDiagnosedConditionsApi, props);
+}
+
+// Invalidate
+export function useInvalidateQuery() {
+  const queryClient = useQueryClient();
+
+  const invalidateQuery = (queryKey: string) => {
+    queryClient.invalidateQueries(queryKey);
+  };
+
+  return invalidateQuery;
+}

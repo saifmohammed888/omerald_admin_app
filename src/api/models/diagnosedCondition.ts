@@ -2,7 +2,9 @@ import mongoose, { Schema } from 'mongoose';
 
 export interface DiagnosedConditionDocument {
   name: string;
-  alias: string[];
+  description: string;
+  aliases: string[];
+  status: boolean;
 }
 
 const DiagnosedConditionSchema: Schema<DiagnosedConditionDocument> =
@@ -12,9 +14,15 @@ const DiagnosedConditionSchema: Schema<DiagnosedConditionDocument> =
       unique: true,
       required: [true, 'Diagnosed condition name required'],
     },
-    alias: {
+    description: {
+      type: String,
+    },
+    aliases: {
       type: [String],
-      unique: true,
+    },
+    status: {
+      type: Boolean,
+      default: false,
     },
   });
 
