@@ -2,6 +2,7 @@
 export const getAdminUsersApi = '/api/users/getAllUsers';
 export const getUserByPhoneApi = '/api/users/getUserByPhone?phoneNumber=';
 export const createUserApi = '/api/users/createUser';
+export const updateUserApi = '/api/users/updateUser?phoneNumber=';
 
 //Dashboard
 export const getAdminDashbord = '/api/dashboard/readDashboard';
@@ -15,6 +16,10 @@ export const updateDiagnosedConditionsApi =
   '/api/diagnosedCondition/updateDiagCondition/?id=';
 export const deleteDiagnosedConditionsApi =
   '/api/diagnosedCondition/deleteDiagCondition/?id=';
+
+// Activities
+export const createAdminActivitiessApi = '/api/userActivity/createActivity';
+export const getAdminActivitiessApi = '/api/userActivity/getAllActivities';
 
 // Diagnostic
 export const BASE_DC_URL =

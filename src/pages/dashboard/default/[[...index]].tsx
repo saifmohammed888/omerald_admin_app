@@ -27,9 +27,9 @@ const Dashboard = () => {
   const [omeraldUsers, setOmeraldUsers] = useState([]);
   const { data: adminDashboard, isLoading, refetch }: any = useGetDashboard();
 
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
+  // useEffect(() => {
+  //   refetch();
+  // }, [refetch]);
 
   const handleMapData = (data: DashboardResponse) => {
     setCardData(data.cardData);
@@ -86,7 +86,7 @@ const Dashboard = () => {
             {omeraldUsers.length > 0 && (
               <UserGrowthChart userData={omeraldUsers} />
             )}
-            {adminAssets && <AdminItemsChart adminAssets={adminAssets} />}
+            {<AdminItemsChart adminAssets={adminAssets} />}
           </div>
 
           <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2">
